@@ -32,3 +32,57 @@ const loadData = (urlBase, page = 1) => {
             showCharacters(personajes);
         })
 }
+const showCharacters = (personajes) => {
+    const ListaPersonajes = document.querySelector('#characters');
+    //limpiar-
+    while (ListaPersonajes.firstChild) {
+        ListaPersonajes.removeChild(ListaPersonajes.firstChild);
+    }
+    personajes.forEach(personaje => {
+        const div = document.createElement('div');
+        div.classList.add('col');
+        div.classList.add('m-2');;
+        div.innerHTML = creaCard(personaje);
+        ListaPersonajes.appendChild(div);
+
+    });
+}
+
+const navegacion = (e) => {
+    if (e.target.classList.contains('btn')) {
+        const id = e.target.getAttribute('data-id');
+        loadData(urlBase, id);
+    }
+}
+
+const showCharactersById = (id) => {
+    const urlId = `${urlBase}${id}`;
+    fetch(urlId)
+        .then(result => result.json())
+        .then(character => {
+            const modalContent = document.querySelector('.modal-body');
+            document.querySelector('.modal-title').innerText = character.name;
+            modalContent.appendChild(modalBody(character));
+        });
+}
+const loadInfo = (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains('btn')) {
+        const modalContent = document.querySelector('.modal-body');
+        modalContent.removeChild(modalContent.firstChild);
+        modalContent.appendChild(spinner());
+        setTimeout(() => {
+            modalContent.removeChild(modalContent.firstChild);
+            //const content = document.createElement('div');
+            const id = e.target.getAttribute('data-id');
+            showCharactersById(id);
+            //content.innerHTML=`<h2>Id${id}</h2>`;
+            //modalContent.appendChild(content);
+        }, 3000);
+    }
+}
+
+document.querySelector('#botones').addEventListener('click', navegacion);
+document.querySelector("#characters").addEventListener('click', loadInfo);
+
+loadData(urlBase);
